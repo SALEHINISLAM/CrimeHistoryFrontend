@@ -47,6 +47,26 @@ const generalUserApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response) => response, 
     }),
+    editProfile:builder.mutation({
+      query: (data) => ({
+        url: "/verified-users/edit-profile",
+        method: "PATCH",
+        body: data,
+      }),
+    }),
+    verifyCode:builder.mutation({
+      query: (data) => ({
+        url: "/users/verify-code",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    sendVerifyCode:builder.mutation({
+      query: () => ({
+        url: "/users/verify-user",
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -55,4 +75,7 @@ export const {
   useAddUserMutation,
   useGetMeQuery,
   useGetTopContributorsQuery,
+  useEditProfileMutation,
+  useVerifyCodeMutation,
+  useSendVerifyCodeMutation
 } = generalUserApi;

@@ -10,6 +10,7 @@ import { persistor, store } from './redux/store.js';
 import { PersistGate } from 'redux-persist/integration/react';
 import Feed from './pages/Feed.jsx';
 import LoggedInUserLayout from './layouts/LoggedInUserLayout.jsx';
+import Register from './pages/Register.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
         <Routes>
           <Route element={<PrimaryLayout />}>
             <Route path='/' element={<App />} />
+            <Route path='/register' element={<Register />} />
           </Route>
           <Route element={<LoggedInUserLayout />}>
             <Route path='/feed' element={<Feed />} />

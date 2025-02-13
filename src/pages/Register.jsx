@@ -1,36 +1,32 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { verifyToken } from './utilis/verifyToken';
-import { useAppDispatch } from './redux/hooks';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
-import { useLoginMutation } from './redux/features/auth/AuthApis';
-import { setUser } from './redux/features/auth/AuthSlice';
+import { useRegisterMutation } from '../redux/features/auth/AuthApis';
+import { useAppDispatch } from '../redux/hooks';
 
-function App() {
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
+function Register() {
+  const navigate = useNavigate();
 
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const [loginUser, { isLoading, isError, error }] =useLoginMutation() ;
+  const [registerUser, { isLoading, isError, error }] = useRegisterMutation();
 
-  const onSubmit =async (data) => {
+  const onSubmit = async (data) => {
     console.log(data);
-    const toastId = toast.loading("Logging in...")
+    const toastId = toast.loading("Registering...");
     try {
-      const result = await loginUser(data).unwrap(); // Trigger the login mutation
-      console.log('Login successful:', result);
-      const user =verifyToken(result?.data?.accessToken)
-      if (user) {
-        dispatch(setUser({ user: user, token: result?.data?.accessToken }));
-        navigate("/feed")
-        toast.success('Login successful', { id: toastId, duration: 3000 });
+      const result = await registerUser(data).unwrap(); // Trigger the register mutation
+      console.log('Registration successful:', result);
+      const suc = result?.success;
+      if (suc) {
+        navigate("/");
+        toast.success('Registration successful', { id: toastId, duration: 3000 });
       } else {
         toast.error('Token verification failed', { id: toastId, duration: 3000 });
       }
     } catch (err) {
-      console.error('Login failed:', err);
-      toast.error("Invalid credentials2", { id: toastId, duration: 3000 })
+      console.error('Registration failed:', err);
+      toast.error("Registration failed", { id: toastId, duration: 3000 });
     }
   };
 
@@ -39,9 +35,9 @@ function App() {
       <div className="hero bg-base-200 min-h-screen">
         <div className="hero-content flex-col lg:flex-row-reverse justify-between">
           <div className="text-center lg:text-left shrink-0">
-            <h1 className="text-5xl font-bold">Login now!</h1>
+            <h1 className="text-5xl font-bold">Register now!</h1>
             <p className="py-6">
-              Login to access the world of crime community!
+              Register to access the world of crime community!
             </p>
           </div>
           <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
@@ -71,14 +67,23 @@ function App() {
                   />
                   {errors.password && <span className="text-error">{errors.password.message}</span>}
                 </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Phone Number</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Phone Number"
+                    className="input input-bordered"
+                    {...register('phone_number', { required: 'Phone number is required' })}
+                  />
+                  {errors.phone_number && <span className="text-error">{errors.phone_number.message}</span>}
+                </div>
                 <div className="form-control mt-6">
-                  <button type="submit" className="btn btn-neutral">Login</button>
+                  <button type="submit" className="btn btn-neutral">Register</button>
                 </div>
                 <div className="text-center mt-4">
-                  <a className="link link-hover">Forgot password?</a>
-                </div>
-                <div className="text-center mt-4">
-                  <p className="font-semibold">Do not have an account <Link to={"/register"} className='underline'> Register Now.</Link></p>
+                  <a className="link link-hover">Already have an account? Login</a>
                 </div>
               </form>
             </div>
@@ -89,4 +94,4 @@ function App() {
   );
 }
 
-export default App;
+export default Register;

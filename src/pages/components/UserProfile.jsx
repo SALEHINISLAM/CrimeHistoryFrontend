@@ -1,6 +1,48 @@
 import React from 'react';
+import ProfileUpdate from './UpdateProfile';
+import VerifyCode from './VerifyCode';
+import { useSendVerifyCodeMutation } from '../../redux/features/users/user.api';
+import { toast } from 'sonner';
 
 const UserProfile = ({ user }) => {
+  console.log(user)
+  const [sendCode, { isLoading }] = useSendVerifyCodeMutation();
+
+  const handleVerifyButton = async () => {
+    const toastId=toast.loading("Please wait...")
+    try {
+      // Send the verification code to the user's email
+      const response = await sendCode().unwrap();
+
+      if (response.success) {
+        // Open the modal after the code is sent successfully
+        const modal = document.getElementById("verifyCode");
+        if (modal) {
+          modal.showModal(); // Open the modal
+        }
+        toast.success("Verification code sent successfully.", { id: toastId, duration: 3000 })
+      } else {
+        console.error("Failed to send verification code:", response.message);
+        alert("Failed to send verification code. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error sending verification code:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
+  if (user && user?.role === "UnVerifiedUser") {
+    return <div className="m-3"><button className='btn btn-error flex w-full' onClick={handleVerifyButton}>Verify Now</button>
+      <dialog id="verifyCode" className="modal">
+        <div className="modal-box max-h-[90vh]">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-0 top-1 text-red-500 border border-black">✕</button>
+          </form>
+          <VerifyCode email={user?.email} />
+        </div>
+      </dialog>
+    </div>
+  }
   return (
     <div className="card w-full bg-base-100 shadow-xl mx-auto my-10">
       <figure className="px-10 pt-10">
@@ -12,6 +54,7 @@ const UserProfile = ({ user }) => {
       </figure>
       <div className="card-body items-center text-center">
         <h2 className="card-title text-2xl font-bold">{user?.name}</h2>
+        <h3>{user?.bio}</h3>
         <p className="text-gray-600">{user?.email}</p>
         <div className="badge badge-primary mt-2">{user?.role}</div>
 
@@ -33,6 +76,16 @@ const UserProfile = ({ user }) => {
             <div className="badge badge-warning gap-2">Password Change Required</div>
           )}
         </div>
+        <button className="btn w-full" onClick={() => document.getElementById('editProfile').showModal()}>Update Profile</button>
+        <dialog id="editProfile" className="modal">
+          <div className="modal-box max-h-[90vh]">
+            <form method="dialog">
+              {/* if there is a button in form, it will close the modal */}
+              <button className="btn btn-sm btn-circle btn-ghost absolute right-0 top-1 text-red-500 border border-black">✕</button>
+            </form>
+            <ProfileUpdate userData={user} />
+          </div>
+        </dialog>
       </div>
     </div>
   );
