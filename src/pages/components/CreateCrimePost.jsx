@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { uploadToCloudinary } from "../../utilis/cloudinaryUploads";
 import { useAddCrimeReportMutation } from "../../redux/features/crimes/crimes.api";
+import { useAppDispatch } from "../../redux/hooks";
+import { optimisticCreateCrimePost, rollbackCreateCrimePost } from "../../redux/features/crimes/crimeSlice";
+import { toast } from "sonner";
 
 export default function CreateCrimePost() {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [uploadedImages, setUploadedImages] = useState([]);
     const [createPost] = useAddCrimeReportMutation();
+    const dispatch=useAppDispatch()
 
     const handleFileSelect = (event) => {
         const files = Array.from(event.target.files);
@@ -29,6 +32,7 @@ export default function CreateCrimePost() {
     };
 
     const onSubmit = async (data) => {
+        const toastId=toast.loading("Posting...");
         const image_urls = await handleUploadImages();
 
         const postData = {
@@ -37,17 +41,25 @@ export default function CreateCrimePost() {
             image_urls,
             is_anonymous: isAnonymous,
         };
-
+        const tempCrimePost = {
+            ...data,
+            report_id: crypto.randomUUID(),
+            crime_time: Date.parse(data.crimeTime),
+            image_urls,
+            is_anonymous: isAnonymous,
+            createdAt: new Date().toISOString(),
+        };
+        dispatch(optimisticCreateCrimePost(tempCrimePost));
         try {
             await createPost(postData).unwrap();
             console.log("Post created successfully");
             reset();
-            setUploadedImages([]);
             setIsAnonymous(false);
-            toast.success("Crime post created successfully", { duration: 3000 });
+            toast.success("Crime post created successfully", { id:toastId,duration: 3000 });
         } catch (error) {
             console.error("Error creating post:", error);
-            toast.error("Error creating post", { duration: 3000 });
+            toast.error("Error creating post", {id:toastId, duration: 3000 });
+            dispatch(rollbackCreateCrimePost({ report_id: tempCrimePost.report_id }));
         }
     };
 
@@ -109,7 +121,7 @@ export default function CreateCrimePost() {
                             {selectedFiles.map((file, index) => (
                                 <div key={index} className="relative">
                                     <img src={URL.createObjectURL(file)} alt="Selected" className="w-16 h-16 object-cover rounded" />
-                                    <button type="button" className="absolute top-0 right-0 bg-red-500 text-white text-xs p-1 rounded-full" 
+                                    <button type="button" className="absolute top-0 right-0 bg-red-500 text-white text-xs p-1 rounded-full"
                                         onClick={() => handleRemoveImage(index)}>X</button>
                                 </div>
                             ))}

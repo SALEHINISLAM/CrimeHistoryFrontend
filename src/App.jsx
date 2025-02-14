@@ -1,16 +1,21 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { verifyToken } from './utilis/verifyToken';
-import { useAppDispatch } from './redux/hooks';
+import { useAppDispatch, useAppSelector } from './redux/hooks';
 import { Link, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { useLoginMutation } from './redux/features/auth/AuthApis';
-import { setUser } from './redux/features/auth/AuthSlice';
+import { setUser, useCurrentUser } from './redux/features/auth/AuthSlice';
+import { Navigate } from 'react-router';
 
 function App() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-
+  const loggedInUser=useAppSelector(useCurrentUser)
+  if (loggedInUser) {
+    return <Navigate to={"/feed"}/>
+  }
+  console.log(loggedInUser)
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [loginUser, { isLoading, isError, error }] =useLoginMutation() ;
 

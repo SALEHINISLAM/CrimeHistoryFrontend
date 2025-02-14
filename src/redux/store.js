@@ -3,6 +3,7 @@ import storage from 'redux-persist/lib/storage';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist'
 import { baseApi } from "./api/baseApi";
 import authReducer from './features/auth/AuthSlice';
+import crimesReducer from "./features/crimes/crimeSlice";
 
 const persistConfig={
     key:"auth",
@@ -16,6 +17,7 @@ export const store=configureStore({
         // Define your reducers here
         [baseApi.reducerPath]:baseApi.reducer,
         auth:persistedAuthReducer,
+        crimes: crimesReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
         serializableCheck:{

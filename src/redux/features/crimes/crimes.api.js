@@ -22,6 +22,7 @@ const crimesApi = baseApi.injectEndpoints({
           response
         };
       },
+      providesTags: ["Crimes"],
     }),
 
     getCrimeById: builder.query({
@@ -29,6 +30,7 @@ const crimesApi = baseApi.injectEndpoints({
         url: `/crimes/get-single-post?report_id=${report_id}`,
         method: "GET",
       }),
+      providesTags: (result, error, report_id) => [{ type: "Crime", id: report_id }],
     }),
 
     addCrimeReport: builder.mutation({
@@ -37,16 +39,19 @@ const crimesApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags:["Crimes"]
     }),
 
     voteCrimePost:builder.mutation({
       query: ({report_id,vote_type}) => ({
-        
           url: `/crimes/vote-post?report_id=${report_id}`,
           method: "POST",
           body: {vote_type:vote_type},
-        
       }),
+      invalidatesTags: (result, error, { report_id }) => [
+        { type: "Crime", id: report_id }, // Invalidate the specific crime post
+        "Crimes", // Invalidate the list of crimes
+      ],
     })
   }),
 });

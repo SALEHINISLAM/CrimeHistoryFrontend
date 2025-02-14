@@ -33,7 +33,7 @@ function Register() {
   return (
     <>
       <div className="hero bg-base-200 min-h-screen">
-        <div className="hero-content flex-col lg:flex-row-reverse justify-between">
+        <div className="hero-content flex-col lg:flex-row justify-between">
           <div className="text-center lg:text-left shrink-0">
             <h1 className="text-5xl font-bold">Register now!</h1>
             <p className="py-6">

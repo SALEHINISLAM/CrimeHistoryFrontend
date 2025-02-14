@@ -3,8 +3,8 @@ import { useGetAllCrimesQuery, useVoteCrimePostMutation } from "../../redux/feat
 import { uploadToCloudinary } from "../../utilis/cloudinaryUploads";
 import { useCreateCommentMutation } from "../../redux/features/comments/comment.api";
 import { toast } from "sonner";
-import { useCurrentUser } from "../../redux/features/auth/AuthSlice";
-import { useAppSelector } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { optimisticAddComment, optimisticVote, rollbackAddComment, rollbackVote } from "../../redux/features/crimes/crimeSlice";
 
 export default function CrimePostFeed({ user_id = null }) {
     const [page, setPage] = useState(1);
@@ -15,7 +15,8 @@ export default function CrimePostFeed({ user_id = null }) {
     const { data, isLoading, error } = useGetAllCrimesQuery({ page, limit: 10 });
     const [voteCrimePost] = useVoteCrimePostMutation();
     const [createComment] = useCreateCommentMutation();
-
+    const dispatch=useAppDispatch()
+    const crimes = useAppSelector((state) => state.crimes.crimes);
     const handleToggleComments = (reportId) => {
         setExpandedPost(expandedPost === reportId ? null : reportId);
     };
@@ -55,13 +56,24 @@ export default function CrimePostFeed({ user_id = null }) {
         setSelectedFiles([]);
         return uploaded
     };
+
     const handleAddComment = async (reportId) => {
         if (!newComment.trim()) return;
         const proofImageURLs = await handleUploadImages()
+        const tempCommentId = Date.now();
         const commentData = {
             comment: newComment,
             proof_image_urls: proofImageURLs,
         };
+        dispatch(
+            optimisticAddComment({
+              report_id: reportId,
+              comment: newComment,
+              proof_image_urls: selectedFiles.map((file) => URL.createObjectURL(file)), 
+              user_id, 
+              userName: "My Comment", // Replace with the actual user's name
+            })
+          );
         console.log(`Adding comment to post ${reportId}:`, commentData);
         try {
             await createComment({ report_id: reportId, body: commentData }).unwrap();
@@ -71,24 +83,28 @@ export default function CrimePostFeed({ user_id = null }) {
         } catch (error) {
             console.error("Error adding comment:", error);
             toast.error("Failed to add comment");
+            dispatch(
+                rollbackAddComment({
+                  report_id: reportId,
+                  comment_id: tempCommentId,
+                })
+              );
         }
     };
 
     const handleVote = async (voteType, report_id) => {
-        if (!report_id) {
-            console.error("Invalid report_id:", report_id);
-            toast.error("Error: Missing report_id");
-            return;
-        }
+        const patchResult = dispatch(
+         optimisticVote({ report_id, vote_type: voteType, user_id })
+        );
+      
         try {
-            await voteCrimePost(
-                { report_id, vote_type: voteType }).unwrap();
-            toast.success("Successfully voted")
+          await voteCrimePost({ report_id, vote_type: voteType }).unwrap();
+          toast.success("Successfully voted");
         } catch (error) {
-            console.error('Failed to update vote:', error);
-            toast.error("Failed to update vote")
+          toast.error("Failed to update vote");
+          dispatch(rollbackVote({ report_id, vote_type: voteType, user_id }))
         }
-    };
+      };
 
     return (
         <div className="max-w-2xl mx-auto p-4">
@@ -112,7 +128,7 @@ export default function CrimePostFeed({ user_id = null }) {
                             </figure>
                         )}
                         <div className="flex justify-between items-center mt-3">
-                            <p className="text-sm text-gray-500">📍 {crime.district}, {crime.division}</p>
+                            <p className="text-sm text-gray-500">📍{crime?.name}, {crime.district}, {crime.division}</p>
                             <div className="flex gap-2">
                                 <button className={`btn btn-sm btn-outline ${user_id && crime?.upVotes?.includes(user_id) && "btn-primary bg-blue-400 text-white"}`} onClick={() => handleVote(crime?.upVotes?.includes(user_id)? "noVote" : "upVote", crime?.report_id) }>👍 {crime.upVotes.length}</button>
                                 <button className={`btn btn-sm btn-outline ${user_id && crime?.downVotes?.includes(user_id) && "btn-primary bg-red-400 text-white"}`} onClick={() => handleVote(crime?.upVotes?.includes(user_id)? "noVote" : "downVote", crime?.report_id,) }>👎 {crime.downVotes.length}</button>
