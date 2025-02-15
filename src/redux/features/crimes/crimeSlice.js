@@ -83,7 +83,7 @@ const crimesSlice = createSlice({
     },
 });
 
-export const { setCrimes, setLoading, setError, optimisticVote, rollbackVote,optimisticAddComment,rollbackAddComment,optimisticCreateCrimePost,rollbackCreateCrimePost } =
+export const { setCrimes, setLoading, setError, optimisticVote, rollbackVote, optimisticAddComment, rollbackAddComment, optimisticCreateCrimePost, rollbackCreateCrimePost } =
     crimesSlice.actions;
 
 export default crimesSlice.reducer;

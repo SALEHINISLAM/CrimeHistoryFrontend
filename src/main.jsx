@@ -11,6 +11,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 import Feed from './pages/Feed.jsx';
 import LoggedInUserLayout from './layouts/LoggedInUserLayout.jsx';
 import Register from './pages/Register.jsx';
+import Profile from './pages/Profile.jsx';
+import TopContributorsPage from './pages/TopContributorsPage.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -24,6 +26,8 @@ createRoot(document.getElementById('root')).render(
           </Route>
           <Route element={<LoggedInUserLayout />}>
             <Route path='/feed' element={<Feed />} />
+            <Route path='/my-profile' element={<Profile />} />
+            <Route path='/top-contributors' element={<TopContributorsPage/>} />
           </Route>
         </Routes>
       </BrowserRouter>

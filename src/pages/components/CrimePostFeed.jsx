@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useGetAllCrimesQuery, useVoteCrimePostMutation } from "../../redux/features/crimes/crimes.api";
 import { uploadToCloudinary } from "../../utilis/cloudinaryUploads";
 import { useCreateCommentMutation } from "../../redux/features/comments/comment.api";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { optimisticAddComment, optimisticVote, rollbackAddComment, rollbackVote } from "../../redux/features/crimes/crimeSlice";
+import { optimisticAddComment, optimisticVote, rollbackAddComment, rollbackVote, setCrimes } from "../../redux/features/crimes/crimeSlice";
 
 export default function CrimePostFeed({ user_id = null }) {
     const [page, setPage] = useState(1);
@@ -16,11 +16,16 @@ export default function CrimePostFeed({ user_id = null }) {
     const [voteCrimePost] = useVoteCrimePostMutation();
     const [createComment] = useCreateCommentMutation();
     const dispatch=useAppDispatch()
+    useEffect(()=>{
+        if (data && data.length > 0) {
+            dispatch(setCrimes(data));
+        }
+      },[data,dispatch])
     const crimes = useAppSelector((state) => state.crimes.crimes);
     const handleToggleComments = (reportId) => {
         setExpandedPost(expandedPost === reportId ? null : reportId);
     };
-
+    
     const handleImageClick = (imageUrl) => {
         setEnlargedImage(imageUrl);
     };
@@ -40,7 +45,8 @@ export default function CrimePostFeed({ user_id = null }) {
 
     if (error) return <div className="text-center text-red-500">Failed to load posts</div>;
 
-    const response = data?.response;
+    const response = data
+    console.log(data)
 
     const handleRemoveImage = (index) => {
         setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
@@ -108,22 +114,23 @@ export default function CrimePostFeed({ user_id = null }) {
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            {response?.data?.formattedCrimeReports?.map((crime) => (
+            {crimes?.map((crime) => (
                 <div key={crime.report_id} className="card bg-base-100 shadow-lg mb-4">
                     <div className="card-body">
                         <h2 className="card-title text-xl">{crime.title}</h2>
                         <p className="text-sm text-gray-500">{new Date(crime.crime_time).toLocaleString()}</p>
                         <p className="text-gray-700">{crime.description}</p>
                         {crime.image_urls?.length > 0 && (
-                            <figure className="grid grid-cols-2 gap-2 mt-2">
-                                {crime.image_urls.map((image, index) => (
-                                    <img
-                                        key={index}
-                                        src={image}
-                                        alt="Crime Image"
-                                        className="w-full h-48 object-cover rounded-lg cursor-pointer"
-                                        onClick={() => handleImageClick(image)}
-                                    />
+                            <figure className="flex flex-col gap-2 mt-2 w-full">
+                                {crime?.image_urls?.map((image, index) => (
+                                     <figure key={index} className="mt-1 w-full">
+                                     <img
+                                         src={image}
+                                         alt="Crime Image"
+                                         className="w-full h-48 object-cover rounded-lg cursor-pointer"
+                                         onClick={() => handleImageClick(image)}
+                                     />
+                                 </figure>
                                 ))}
                             </figure>
                         )}

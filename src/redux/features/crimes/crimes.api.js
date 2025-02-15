@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { baseApi } from "../../api/baseApi";
 
 const crimesApi = baseApi.injectEndpoints({
@@ -18,9 +19,7 @@ const crimesApi = baseApi.injectEndpoints({
         };
       },
       transformResponse: (response) => {
-        return {
-          response
-        };
+        return  response?.data?.formattedCrimeReports || [];
       },
       providesTags: ["Crimes"],
     }),
@@ -39,14 +38,14 @@ const crimesApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags:["Crimes"]
+      invalidatesTags: ["Crimes"]
     }),
 
-    voteCrimePost:builder.mutation({
-      query: ({report_id,vote_type}) => ({
-          url: `/crimes/vote-post?report_id=${report_id}`,
-          method: "POST",
-          body: {vote_type:vote_type},
+    voteCrimePost: builder.mutation({
+      query: ({ report_id, vote_type }) => ({
+        url: `/crimes/vote-post?report_id=${report_id}`,
+        method: "POST",
+        body: { vote_type: vote_type },
       }),
       invalidatesTags: (result, error, { report_id }) => [
         { type: "Crime", id: report_id }, // Invalidate the specific crime post
