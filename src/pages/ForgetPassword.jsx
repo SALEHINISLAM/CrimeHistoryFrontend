@@ -5,7 +5,7 @@ import { useForgotPasswordCodeMutation, useVerifyCodeAndResetPasswordMutation } 
 import { useNavigate } from 'react-router';
 
 const ForgotPassword = () => {
-  const [step, setStep] = useState(2); // 1: Send code, 2: Verify code and reset password
+  const [step, setStep] = useState(1); // 1: Send code, 2: Verify code and reset password
   const [email, setEmail] = useState('msionlinekingdom@gmail.com'); // Store email for step 2
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [sendForgotPassCode, { isLoading: isSendingCode }] = useForgotPasswordCodeMutation();
