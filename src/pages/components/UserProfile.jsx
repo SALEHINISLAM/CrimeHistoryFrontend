@@ -3,6 +3,7 @@ import ProfileUpdate from './UpdateProfile';
 import VerifyCode from './VerifyCode';
 import { useSendVerifyCodeMutation } from '../../redux/features/users/user.api';
 import { toast } from 'sonner';
+import ChangePassword from './ChangePassword';
 
 const UserProfile = ({ user }) => {
   console.log(user)
@@ -84,6 +85,16 @@ const UserProfile = ({ user }) => {
               <button className="btn btn-sm btn-circle btn-ghost absolute right-0 top-1 text-red-500 border border-black">✕</button>
             </form>
             <ProfileUpdate userData={user} />
+          </div>
+        </dialog>
+        <button className="btn w-full" onClick={() => document.getElementById('changePassword').showModal()}>Change Password</button>
+        <dialog id="changePassword" className="modal">
+          <div className="modal-box max-h-[90vh]">
+            <form method="dialog">
+              {/* if there is a button in form, it will close the modal */}
+              <button className="btn btn-sm btn-circle btn-ghost absolute right-0 top-1 text-red-500 border border-black">✕</button>
+            </form>
+            <ChangePassword/>
           </div>
         </dialog>
       </div>

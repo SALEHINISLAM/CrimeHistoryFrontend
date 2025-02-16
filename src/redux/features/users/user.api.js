@@ -67,6 +67,27 @@ const generalUserApi = baseApi.injectEndpoints({
         method: "POST",
       }),
     }),
+    forgotPasswordCode:builder.mutation({
+      query: (email) => ({
+        url: "/users/forget-password",
+        method: "POST",
+        body: email,
+      }),
+    }),
+    verifyCodeAndResetPassword: builder.mutation({
+      query: ({ email, code, password }) => ({
+        url: '/users/reset-password',
+        method: 'POST',
+        body: { email, code, password:password },
+      }),
+    }),
+    changePassword: builder.mutation({
+      query: ({ oldPassword, newPassword }) => ({
+        url: '/auth/change-password',
+        method: 'POST',
+        body: { oldPassword, newPassword },
+      }),
+    }),
   }),
 });
 
@@ -77,5 +98,8 @@ export const {
   useGetTopContributorsQuery,
   useEditProfileMutation,
   useVerifyCodeMutation,
-  useSendVerifyCodeMutation
+  useSendVerifyCodeMutation,
+  useForgotPasswordCodeMutation,
+  useVerifyCodeAndResetPasswordMutation,
+  useChangePasswordMutation,
 } = generalUserApi;

@@ -13,6 +13,7 @@ import LoggedInUserLayout from './layouts/LoggedInUserLayout.jsx';
 import Register from './pages/Register.jsx';
 import Profile from './pages/Profile.jsx';
 import TopContributorsPage from './pages/TopContributorsPage.jsx';
+import ForgotPassword from './pages/ForgetPassword.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')).render(
           <Route element={<PrimaryLayout />}>
             <Route path='/' element={<App />} />
             <Route path='/register' element={<Register />} />
+            <Route path='/forgot-password' element={<ForgotPassword />} />
           </Route>
           <Route element={<LoggedInUserLayout />}>
             <Route path='/feed' element={<Feed />} />

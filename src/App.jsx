@@ -80,7 +80,7 @@ function App() {
                   <button type="submit" className="btn btn-neutral">Login</button>
                 </div>
                 <div className="text-center mt-4">
-                  <a className="link link-hover">Forgot password?</a>
+                  <Link to={"/forgot-password"} className="link link-hover">Forgot password?</Link>
                 </div>
                 <div className="text-center mt-4">
                   <p className="font-semibold">Do not have an account <Link to={"/register"} className='underline'> Register Now.</Link></p>
